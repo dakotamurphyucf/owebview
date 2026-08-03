@@ -26,6 +26,13 @@
 
 #include "webview.h"
 
+#if defined(__APPLE__)
+/* For the Dock icon we drive Cocoa through the Objective-C runtime C API. */
+#include <objc/message.h>
+#include <objc/objc.h>
+#include <objc/runtime.h>
+#endif
+
 /* ---- pointer <-> OCaml value helpers ---- */
 
 static inline webview_t wv_of_val(value v) {
@@ -160,6 +167,32 @@ CAMLprim value ocaml_webview_get_native_handle(value vw, value vkind) {
   }
   void *h = webview_get_native_handle(wv_of_val(vw), kind);
   CAMLreturn(caml_copy_nativeint(reinterpret_cast<intnat>(h)));
+}
+
+/* Set the application (Dock) icon from an image file. macOS only: it does
+ * [NSApp setApplicationIconImage:[[NSImage alloc] initWithContentsOfFile:path]]
+ * via the Objective-C runtime. No-op on the GTK/WebView2 backends. */
+CAMLprim value ocaml_webview_set_app_icon(value vpath) {
+  CAMLparam1(vpath);
+#if defined(__APPLE__)
+  const char *path = String_val(vpath);
+  id app = ((id (*)(Class, SEL))objc_msgSend)(
+      objc_getClass("NSApplication"), sel_registerName("sharedApplication"));
+  id nspath = ((id (*)(Class, SEL, const char *))objc_msgSend)(
+      objc_getClass("NSString"), sel_registerName("stringWithUTF8String:"),
+      path);
+  id image = ((id (*)(Class, SEL))objc_msgSend)(
+      objc_getClass("NSImage"), sel_registerName("alloc"));
+  image = ((id (*)(id, SEL, id))objc_msgSend)(
+      image, sel_registerName("initWithContentsOfFile:"), nspath);
+  if (image == nullptr)
+    caml_failwith("set_app_icon: could not load image file");
+  ((void (*)(id, SEL, id))objc_msgSend)(
+      app, sel_registerName("setApplicationIconImage:"), image);
+#else
+  (void)vpath; /* no Dock concept on the GTK/WebView2 backends for now */
+#endif
+  CAMLreturn(Val_unit);
 }
 
 CAMLprim value ocaml_webview_run(value vw) {

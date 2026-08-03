@@ -8,6 +8,17 @@ let () =
   Webview.set_title w "Hello from OCaml";
   Webview.set_size w ~width:480 ~height:320 Webview.Hint_none;
 
+  (* Custom Dock icon (macOS): if a hello.png sits next to the web assets, use
+     it instead of the generic executable icon. Drop your own hello.png in
+     examples/hellowv/web/ to see it. webview only turns the process into a
+     regular (Dock-visible) app inside applicationDidFinishLaunching:, which
+     fires *after* [run] starts, so we set the icon from a dispatched callback
+     (it runs on the UI thread once the app is active) — setting it before [run]
+     is too early and the Dock ignores it. *)
+  let icon = Filename.concat (Webview.Utils.web_dir ()) "hello.png" in
+  if Sys.file_exists icon then
+    Webview.dispatch w (fun _ -> Webview.set_app_icon icon);
+
   (* Native handles (opaque pointers, for platform-specific FFI such as a file
      dialog). 0n means unavailable. *)
   Printf.printf "native window handle = %nx\n%!" (Webview.get_window w);
