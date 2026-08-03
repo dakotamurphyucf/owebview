@@ -17,7 +17,7 @@ let () =
      is too early and the Dock ignores it. *)
   let icon = Filename.concat (Webview.Utils.web_dir ()) "hello.png" in
   if Sys.file_exists icon then
-    Webview.dispatch w (fun _ -> Webview.set_app_icon icon);
+    Webview.dispatch w (fun w -> Webview.set_app_icon w icon);
 
   (* Native handles (opaque pointers, for platform-specific FFI such as a file
      dialog). 0n means unavailable. *)

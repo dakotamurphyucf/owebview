@@ -26,11 +26,16 @@
 
 #include "webview.h"
 
+/* Platform APIs used by set_app_icon (the window/Dock icon). */
 #if defined(__APPLE__)
-/* For the Dock icon we drive Cocoa through the Objective-C runtime C API. */
+/* macOS Dock icon: drive Cocoa through the Objective-C runtime C API. */
 #include <objc/message.h>
 #include <objc/objc.h>
 #include <objc/runtime.h>
+#elif defined(__linux__)
+#include <gtk/gtk.h> /* GtkWindow icon (GTK3) */
+#elif defined(_WIN32)
+#include <windows.h> /* HWND icon via WM_SETICON */
 #endif
 
 /* ---- pointer <-> OCaml value helpers ---- */
@@ -169,13 +174,17 @@ CAMLprim value ocaml_webview_get_native_handle(value vw, value vkind) {
   CAMLreturn(caml_copy_nativeint(reinterpret_cast<intnat>(h)));
 }
 
-/* Set the application (Dock) icon from an image file. macOS only: it does
- * [NSApp setApplicationIconImage:[[NSImage alloc] initWithContentsOfFile:path]]
- * via the Objective-C runtime. No-op on the GTK/WebView2 backends. */
-CAMLprim value ocaml_webview_set_app_icon(value vpath) {
-  CAMLparam1(vpath);
-#if defined(__APPLE__)
+/* Set the application/window icon from an image file.
+ *  - macOS: the Dock icon, application-global, set on NSApp (the window handle
+ *    is ignored).
+ *  - Linux (GTK): the window's icon, shown in the taskbar/switcher.
+ *  - Windows: the window's icon via WM_SETICON (Win32 loads .ico files).
+ * A no-op on any other backend. */
+CAMLprim value ocaml_webview_set_app_icon(value vw, value vpath) {
+  CAMLparam2(vw, vpath);
   const char *path = String_val(vpath);
+#if defined(__APPLE__)
+  (void)vw; /* the Dock icon is application-global, not per window */
   id app = ((id (*)(Class, SEL))objc_msgSend)(
       objc_getClass("NSApplication"), sel_registerName("sharedApplication"));
   id nspath = ((id (*)(Class, SEL, const char *))objc_msgSend)(
@@ -189,8 +198,37 @@ CAMLprim value ocaml_webview_set_app_icon(value vpath) {
     caml_failwith("set_app_icon: could not load image file");
   ((void (*)(id, SEL, id))objc_msgSend)(
       app, sel_registerName("setApplicationIconImage:"), image);
+#elif defined(__linux__)
+  GtkWindow *win = static_cast<GtkWindow *>(webview_get_native_handle(
+      wv_of_val(vw), WEBVIEW_NATIVE_HANDLE_KIND_UI_WINDOW));
+#if GTK_MAJOR_VERSION < 4
+  GError *error = NULL;
+  if (!gtk_window_set_icon_from_file(win, path, &error)) {
+    char msg[256];
+    std::snprintf(msg, sizeof(msg), "set_app_icon: %s",
+                  (error && error->message) ? error->message
+                                            : "could not load image");
+    if (error)
+      g_error_free(error);
+    caml_failwith(msg);
+  }
 #else
-  (void)vpath; /* no Dock concept on the GTK/WebView2 backends for now */
+  (void)win; /* GTK4 removed per-window icon-from-file; use a .desktop file */
+#endif
+#elif defined(_WIN32)
+  /* Win32 loads .ico files from disk; decoding a PNG would need WIC/GDI+. */
+  HWND hwnd = static_cast<HWND>(webview_get_native_handle(
+      wv_of_val(vw), WEBVIEW_NATIVE_HANDLE_KIND_UI_WINDOW));
+  HANDLE icon = LoadImageA(nullptr, path, IMAGE_ICON, 0, 0,
+                           LR_LOADFROMFILE | LR_DEFAULTSIZE);
+  if (icon == nullptr)
+    caml_failwith(
+        "set_app_icon: could not load icon (Windows expects a .ico file)");
+  SendMessageW(hwnd, WM_SETICON, ICON_BIG, reinterpret_cast<LPARAM>(icon));
+  SendMessageW(hwnd, WM_SETICON, ICON_SMALL, reinterpret_cast<LPARAM>(icon));
+#else
+  (void)vw;
+  (void)path;
 #endif
   CAMLreturn(Val_unit);
 }

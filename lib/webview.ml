@@ -61,7 +61,7 @@ external get_window : t -> nativeint = "ocaml_webview_get_window"
 external _get_native_handle : t -> int -> nativeint
   = "ocaml_webview_get_native_handle"
 
-external set_app_icon : string -> unit = "ocaml_webview_set_app_icon"
+external set_app_icon : t -> string -> unit = "ocaml_webview_set_app_icon"
 
 let create ?(debug = false) () = _create debug
 let set_size w ~width ~height hint = _set_size w width height (int_of_hint hint)

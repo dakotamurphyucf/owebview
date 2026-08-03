@@ -94,11 +94,16 @@ val get_native_handle : t -> native_handle_kind -> nativeint
 (** [get_native_handle w kind] returns the requested native handle as a pointer
     ([0n] if unavailable). *)
 
-val set_app_icon : string -> unit
-(** [set_app_icon path] sets the application icon (the macOS Dock icon) from an
-    image file, so a plain executable shows a custom icon instead of the generic
-    one. Raises [Failure] if the image cannot be loaded. On the GTK/WebView2
-    backends it is currently a no-op.
+val set_app_icon : t -> string -> unit
+(** [set_app_icon w path] sets the application/window icon from an image file,
+    so a plain executable shows a custom icon instead of the generic one:
+
+    - {b macOS}: the Dock icon (application-global; [w] is ignored).
+    - {b Linux/GTK}: the window's icon (taskbar/switcher).
+    - {b Windows}: the window's icon via [WM_SETICON] — Win32 loads [.ico]
+      files, so a [.png] will not decode there.
+
+    Raises [Failure] if the image cannot be loaded; a no-op on other backends.
 
     On macOS the process only becomes a regular (Dock-visible) app once {!run}
     has started, so call this {b once the app is active} — e.g. from a
