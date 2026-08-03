@@ -3,6 +3,10 @@ let () =
   Webview.set_title w "Timer (Posix)";
   Webview.set_size w ~width:320 ~height:220 Webview.Hint_none;
 
+  let icon = Filename.concat (Webview.Utils.web_dir ()) "timer.png" in
+  if Sys.file_exists icon then
+    Webview.dispatch w (fun w -> Webview.set_app_icon w icon);
+
   (* Expose window.print_time(seconds): the page's button calls it and we print
      the elapsed time on the main process's console (stdout). [req] is a JSON
      array of the JS arguments, e.g. "[42]". *)
