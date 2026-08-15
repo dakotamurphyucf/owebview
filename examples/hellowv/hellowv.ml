@@ -1,4 +1,3 @@
-
 let () =
   (* Library version info (no window needed). *)
   let v = Webview.version () in

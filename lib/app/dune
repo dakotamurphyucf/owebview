@@ -1,0 +1,11 @@
+(library
+ (name owebview_app)
+ (public_name owebview.app)
+ (libraries
+  owebview.eio
+  owebview.protocol
+  eio
+  uri
+  cohttp-eio
+  magic-mime
+  unix))

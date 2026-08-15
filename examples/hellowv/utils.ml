@@ -4,7 +4,7 @@ let detect_os () =
   match Sys.os_type with
   | "Win32" -> "Windows"
   | "Cygwin" -> "Cygwin"
-  | _ ->
+  | _ -> (
       let uname =
         try
           let ic = Unix.open_process_in "uname -s" in
@@ -13,8 +13,8 @@ let detect_os () =
           String.trim line
         with _ -> ""
       in
-      (match uname with
-       | "Darwin" -> "macOS"
-       | "Linux" -> "Linux"
-       | "" -> "Unix"
-       | other -> other)
+      match uname with
+      | "Darwin" -> "macOS"
+      | "Linux" -> "Linux"
+      | "" -> "Unix"
+      | other -> other)

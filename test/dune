@@ -1,0 +1,15 @@
+(test
+ (name api_test)
+ (libraries owebview.webview owebview.protocol))
+
+(test
+ (name assets_test)
+ (libraries owebview.app))
+
+(test
+ (name durable_session_test)
+ (libraries owebview.app eio_main))
+
+(test
+ (name durable_process_restart_test)
+ (libraries owebview.app eio_main))

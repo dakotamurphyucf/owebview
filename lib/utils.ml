@@ -19,8 +19,7 @@ let asset_dir () =
     | x :: rest -> x :: strip rest
     | [] -> []
   in
-  String.concat Filename.dir_sep
-    (strip (String.split_on_char '/' (exe_dir ())))
+  String.concat Filename.dir_sep (strip (String.split_on_char '/' (exe_dir ())))
 
 (* Locate the directory holding the web assets (index.html + style.css +
    app.js), independently of the current working directory.

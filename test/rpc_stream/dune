@@ -1,0 +1,21 @@
+(library
+ (name rpc_stream_protocol)
+ (modules protocol_defs)
+ (libraries owebview.protocol))
+
+(executable
+ (name rpc_stream_frontend)
+ (modules rpc_stream_frontend)
+ (modes js)
+ (libraries owebview.jsoo rpc_stream_protocol))
+
+(executable
+ (name rpc_stream_backend)
+ (modules rpc_stream_backend)
+ (libraries owebview.app rpc_stream_protocol))
+
+(rule
+ (alias integration)
+ (deps rpc_stream_frontend.bc.js)
+ (action
+  (run %{exe:rpc_stream_backend.exe} %{dep:rpc_stream_frontend.bc.js})))

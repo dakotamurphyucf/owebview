@@ -11,13 +11,27 @@
 
 (package
  (name owebview)
- (synopsis "OCaml bindings for the webview library")
+ (synopsis "OCaml 5 and Eio desktop application runtime")
  (description
-  "A small OCaml binding skeleton for the webview library\n(https://github.com/webview/webview): window creation, navigation,\nbidirectional JS <-> OCaml bindings, plus an example application.\n\nOn macOS the native dependencies (WebKit/Cocoa) are provided by the system;\non Linux they are declared as depexts (gtk+-3.0 and webkit2gtk-4.1) for common distributions.")
+  "An opinionated OCaml 5 desktop application runtime built on the system WebView. It provides managed native handles, an Eio lifecycle, a shared native/js_of_ocaml protocol, typed RPC, bounded realtime streams, secure application assets, multiple windows, and durable shared sessions.\n\nOn macOS the native dependencies are provided by Cocoa/WebKit. Linux discovery prefers GTK4/WebKitGTK 6.0 and falls back to GTK3/WebKitGTK 4.1 or 4.0. Windows targets use the upstream WebView2 backend but remain unvalidated.")
  (depends
   (ocaml
-   (>= 4.08))
+   (>= 5.3))
+  (eio
+   (>= 1.3))
+  (eio_main
+   (>= 1.3))
+  (cohttp-eio
+   (>= 6.0))
+  (magic-mime
+   (>= 1.3))
+  (uri
+   (>= 4.4))
+  (yojson
+   (>= 3.0))
+  (js_of_ocaml
+   (>= 6.4))
   (dune-configurator
    (and
-    (>= 3.0)
-    :build))))
+   (>= 3.0)
+   :build))))

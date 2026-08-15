@@ -1,0 +1,3 @@
+(executable
+ (name desktop_app)
+ (libraries owebview.app))

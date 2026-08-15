@@ -1,0 +1,4 @@
+(library
+ (name owebview_protocol)
+ (public_name owebview.protocol)
+ (libraries yojson))

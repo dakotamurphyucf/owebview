@@ -1,0 +1,4 @@
+(library
+ (name webview_eio)
+ (public_name owebview.eio)
+ (libraries owebview.webview eio eio_main))

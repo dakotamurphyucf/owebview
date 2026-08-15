@@ -1,0 +1,20 @@
+(library
+ (name agent_protocol)
+ (modules protocol)
+ (libraries owebview.protocol))
+
+(executable
+ (name frontend)
+ (modules frontend)
+ (modes js)
+ (libraries owebview.jsoo agent_protocol))
+
+(executable
+ (name backend)
+ (modules backend demo_assets)
+ (libraries owebview.app agent_protocol))
+
+(test
+ (name protocol_test)
+ (modules protocol_test)
+ (libraries agent_protocol))

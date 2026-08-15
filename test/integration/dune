@@ -1,0 +1,69 @@
+(executable
+ (name lifecycle_test)
+ (libraries owebview.eio))
+
+(executable
+ (name managed_handle_test)
+ (libraries owebview.webview threads.posix))
+
+(executable
+ (name eio_binding_test)
+ (libraries owebview.eio))
+
+(executable
+ (name sanitizer_smoke_test)
+ (libraries owebview.webview))
+
+(executable
+ (name eio_failure_test)
+ (libraries owebview.eio))
+
+(executable
+ (name stress_test)
+ (libraries owebview.webview threads.posix))
+
+(executable
+ (name responsiveness_test)
+ (libraries owebview.eio))
+
+(executable
+ (name dialog_lifecycle_test)
+ (libraries owebview.eio))
+
+(executable
+ (name transport_timeout_test)
+ (libraries owebview.app))
+
+(executable
+ (name asset_security_test)
+ (libraries owebview.app))
+
+(executable
+ (name multi_window_test)
+ (libraries owebview.app))
+
+(executable
+ (name durable_multi_window_test)
+ (libraries owebview.app))
+
+(executable
+ (name durable_slow_subscriber_test)
+ (libraries owebview.app))
+
+(rule
+ (alias integration)
+ (action
+  (progn
+   (run %{exe:sanitizer_smoke_test.exe})
+   (run %{exe:managed_handle_test.exe})
+   (run %{exe:stress_test.exe})
+   (run %{exe:eio_binding_test.exe})
+   (run %{exe:eio_failure_test.exe})
+   (run %{exe:responsiveness_test.exe})
+   (run %{exe:dialog_lifecycle_test.exe})
+   (run %{exe:transport_timeout_test.exe})
+   (run %{exe:asset_security_test.exe})
+   (run %{exe:multi_window_test.exe})
+   (run %{exe:durable_multi_window_test.exe})
+   (run %{exe:durable_slow_subscriber_test.exe})
+   (run %{exe:lifecycle_test.exe}))))

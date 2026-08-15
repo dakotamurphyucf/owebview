@@ -5617,6 +5617,7 @@ public:
   cocoa_wkwebview_engine &operator=(cocoa_wkwebview_engine &&) = delete;
 
   virtual ~cocoa_wkwebview_engine() {
+    m_dispatch_alive->store(false, std::memory_order_release);
     objc::autoreleasepool arp;
     if (m_window) {
       if (m_webview) {
@@ -5653,10 +5654,13 @@ public:
       objc::release(m_app_delegate);
       m_app_delegate = nullptr;
     }
-    if (owns_window()) {
-      // Needed for the window to close immediately.
-      deplete_run_loop_event_queue();
-    }
+    // Do not call deplete_run_loop_event_queue() here. Cocoa destruction can
+    // legitimately run from a main-thread callback while another owned window
+    // keeps NSApplication running. The generic helper dispatches its sentinel
+    // onto the serial main queue and then enters a nested AppKit event loop;
+    // when destruction already runs on that queue, the sentinel cannot execute
+    // and teardown deadlocks. dispatch_impl guards queued callbacks with
+    // m_dispatch_alive so they are discarded safely after destruction.
     // TODO: Figure out why m_manager is still alive after the autoreleasepool
     // has been drained.
   }
@@ -5694,12 +5698,20 @@ protected:
   }
 
   noresult dispatch_impl(std::function<void()> f) override {
-    dispatch_async_f(dispatch_get_main_queue(), new dispatch_fn_t(f),
-                     (dispatch_function_t)([](void *arg) {
-                       auto f = static_cast<dispatch_fn_t *>(arg);
-                       (*f)();
-                       delete f;
-                     }));
+    struct dispatch_context {
+      std::shared_ptr<std::atomic_bool> alive;
+      dispatch_fn_t callback;
+    };
+    auto *context = new dispatch_context{m_dispatch_alive, f};
+    dispatch_async_f(
+        dispatch_get_main_queue(), context,
+        (dispatch_function_t)([](void *arg) {
+          std::unique_ptr<dispatch_context> context{
+              static_cast<dispatch_context *>(arg)};
+          if (context->alive->load(std::memory_order_acquire)) {
+            context->callback();
+          }
+        }));
     return {};
   }
 
@@ -6129,6 +6141,8 @@ private:
   id m_widget{};
   id m_webview{};
   id m_manager{};
+  std::shared_ptr<std::atomic_bool> m_dispatch_alive{
+      std::make_shared<std::atomic_bool>(true)};
   bool m_is_window_shown{};
 };
 

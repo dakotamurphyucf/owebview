@@ -1,0 +1,4 @@
+(library
+ (name owebview_jsoo)
+ (public_name owebview.jsoo)
+ (libraries owebview.protocol js_of_ocaml))

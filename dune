@@ -1,0 +1,11 @@
+(env
+ (asan
+  (cxx_flags
+   (:standard -fsanitize=address -fno-omit-frame-pointer))
+  (link_flags
+   (:standard -cclib -fsanitize=address)))
+ (ubsan
+  (cxx_flags
+   (:standard -fsanitize=undefined -fno-omit-frame-pointer))
+  (link_flags
+   (:standard -cclib -fsanitize=undefined))))
