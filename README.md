@@ -1,10 +1,24 @@
-# owebview
+# Owebview Runtime
 
-`owebview` is an opinionated OCaml 5 desktop application runtime built on the
-platform WebView. OCaml and Eio own application state and native work; a
-js_of_ocaml application owns the HTML frontend.
+Owebview Runtime is an opinionated OCaml 5 and Eio runtime for building native
+desktop applications with HTML interfaces. It retains the low-level WebView
+bindings and adds managed application lifecycles, typed RPC, realtime streams,
+secure assets, multiple windows, and durable application sessions. OCaml and
+Eio own application state and native work; a js_of_ocaml application owns the
+HTML frontend.
 
-Implemented locally:
+The OCaml libraries continue to use the `owebview.*` package namespace.
+
+## Relationship to upstream
+
+Owebview Runtime began as a fork of
+[`korkorran/owebview`](https://github.com/korkorran/owebview), whose original
+focus is a compact OCaml binding to the cross-platform `webview` library. This
+project retains that binding as `owebview.webview` while developing a broader,
+opinionated desktop application runtime around OCaml 5, Eio, and js_of_ocaml.
+The original repository remains configured as the Git `upstream` remote.
+
+## Runtime capabilities
 
 - Managed OCaml 5 native handles, typed errors, lifecycle checks, and safe
   callbacks.

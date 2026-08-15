@@ -4,10 +4,10 @@
 
 (name owebview)
 (source
- (github korkorran/owebview))
+ (github dakotamurphyucf/owebview-runtime))
 (license MIT)
-(authors "Frédéric Lang")
-(maintainers "frederic.ln.lang@gmail.com")
+(authors "Frédéric Lang" "Dakota Murphy")
+(maintainers "Dakota Murphy <dakotamurphyucf@gmail.com>")
 
 (package
  (name owebview)

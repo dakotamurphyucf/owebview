@@ -5,11 +5,11 @@ description: """
 An opinionated OCaml 5 desktop application runtime built on the system WebView. It provides managed native handles, an Eio lifecycle, a shared native/js_of_ocaml protocol, typed RPC, bounded realtime streams, secure application assets, multiple windows, and durable shared sessions.
 
 On macOS the native dependencies are provided by Cocoa/WebKit. Linux discovery prefers GTK4/WebKitGTK 6.0 and falls back to GTK3/WebKitGTK 4.1 or 4.0. Windows targets use the upstream WebView2 backend but remain unvalidated."""
-maintainer: ["frederic.ln.lang@gmail.com"]
-authors: ["Frédéric Lang"]
+maintainer: ["Dakota Murphy <dakotamurphyucf@gmail.com>"]
+authors: ["Frédéric Lang" "Dakota Murphy"]
 license: "MIT"
-homepage: "https://github.com/korkorran/owebview"
-bug-reports: "https://github.com/korkorran/owebview/issues"
+homepage: "https://github.com/dakotamurphyucf/owebview-runtime"
+bug-reports: "https://github.com/dakotamurphyucf/owebview-runtime/issues"
 depends: [
   "dune" {>= "3.0"}
   "ocaml" {>= "5.3"}
@@ -37,7 +37,7 @@ build: [
     "@doc" {with-doc}
   ]
 ]
-dev-repo: "git+https://github.com/korkorran/owebview.git"
+dev-repo: "git+https://github.com/dakotamurphyucf/owebview-runtime.git"
 depexts: [
   ["libgtk-3-dev" "libwebkit2gtk-4.1-dev"] {os-family = "debian"}
   ["gtk3-devel" "webkit2gtk4.1-devel"] {os-family = "fedora" | os-family = "rhel"}
